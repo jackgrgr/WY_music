@@ -1,0 +1,15 @@
+{% extends 'create_account/signup.html' %}
+{% block sign %}
+    <form class="form-signin" method="post" action="/users/signin">
+        {% csrf_token %}
+        <h2 class="form-signin-heading">请登陆</h2>
+        <input name='username' class="input-block-level" placeholder="用户名" type="text">
+        <input name='password' class="input-block-level" placeholder="密码" type="password">
+        <label class="checkbox">
+            <input value="remember-me" type="checkbox"> Remember me
+        </label>
+        <button class="btn btn-large btn-primary" type="submit">Sign up</button>
+        <span>{{ error_msg }}</span>
+    </form>
+{% endblock %}
+

@@ -1,6 +1,6 @@
 from django.shortcuts import render, HttpResponse
 from .models import SongList
-from django.contrib.auth import authenticate, login, logout
+import numpy as np
 
 
 # Create your views here.
@@ -11,12 +11,13 @@ def get_avatar(request, param1):
 
 def index(request):
     lists_to_show = SongList.objects.order_by('list_play')[::-1][0:6]
-    username = request.session.get('username', 'anonymous')
-    password = request.session.get('password', '')
-    user = authenticate(username=username, password=password)
-    print(user)
-    if user:
-        login(request, user)
+    all_lists = SongList.objects.all()
+    average_play = 0
+    list_numplay = [list_.list_play / 10000 for list_ in all_lists]
+    average_play += int(np.mean(list_numplay) * 10000)
+    var_play = np.sqrt(np.var(list_numplay)) * (10 ** 4)
+    print(average_play, var_play)
+
     return render(request, 'get_songlists/index.html', context={'lists_to_show': lists_to_show})
 
 

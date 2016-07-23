@@ -60,6 +60,7 @@ class WangyiMusic(object):
             list_id = int(n_share_tag['data-res-id'])
             list_link = 'http://music.163.com/playlist?id=' + str(list_id)
             list_name = n_share_tag['data-res-name']
+            print(list_name)
             list_comment_string = str(soup.find('span', id='cnt_comment_count').string)
             if list_comment_string == '评论':
                 list_comment_string = '0'
@@ -72,4 +73,4 @@ class WangyiMusic(object):
 
 
 if __name__ == '__main__':
-    update_songlists_stats(7)
+    update_songlists_stats(10)

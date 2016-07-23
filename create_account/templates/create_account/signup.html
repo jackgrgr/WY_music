@@ -67,8 +67,8 @@
 <body>
 
 <div class="container">
-
-    <form class="form-signin" method="post" action="/signup/">
+    {% block sign %}
+        <form class="form-signin" method="post" action="/users/signup">
         {% csrf_token %}
         <h2 class="form-signin-heading">请注册</h2>
         <input name='username' class="input-block-level" placeholder="用户名" type="text">
@@ -79,8 +79,9 @@
             <input value="remember-me" type="checkbox"> Remember me
         </label>
         <button class="btn btn-large btn-primary" type="submit">Sign up</button>
+            <span>{{ error_msg }}</span>
     </form>
-    <p>{{ error_msg }}</p>
+    {% endblock %}
 
 </div> <!-- /container -->
 

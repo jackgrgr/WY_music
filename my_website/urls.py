@@ -22,6 +22,6 @@ urlpatterns = [
     url(r'^GET/avatars/', include('get_songlists.urls')),
     url(r'^songlists/', include('get_songlists.urls')),
     # url(r'^testcookie/', include('get_songlists.urls')),
-    url(r'^signup/', include('create_account.urls')),
+    url(r'^users/', include('create_account.urls'), name='users'),
     url(r'^comments/', include('django_comments.urls'))
 ]
