@@ -48,28 +48,34 @@ class WangyiMusic(object):
         tasks = (grequests.get(list_link) for list_link in self.list_links[start_index:end_index])
         results = grequests.map(tasks)
         for result in results:
-            soup = BeautifulSoup(result.text, 'html.parser')
-            list_img = soup.find('img', class_='j-img')['src']
-            list_play = int(soup.find(id='play-count').string)
-            list_fav = soup.find('a', class_='u-btni u-btni-fav ')['data-count']
-            list_created_date_string = soup.find('span', class_='time s-fc4').string
-            list_created_date = re.findall(r'([0-9]{4}-[0-9]{1,2}-[0-9]{1,2})', list_created_date_string)
-            n_share_tag = soup.find('a', class_='u-btni u-btni-share ')
-            list_share = n_share_tag['data-count']
-            list_author = n_share_tag['data-res-author']
-            list_id = int(n_share_tag['data-res-id'])
-            list_link = 'http://music.163.com/playlist?id=' + str(list_id)
-            list_name = n_share_tag['data-res-name']
-            print(list_name)
-            list_comment_string = str(soup.find('span', id='cnt_comment_count').string)
-            if list_comment_string == '评论':
-                list_comment_string = '0'
-            list_comment = int(list_comment_string)
-            songlist = SongList(list_name=list_name, list_created_date=list_created_date[0], list_play=list_play,
-                                list_author=list_author,
-                                list_link=list_link, list_img=list_img, list_id=list_id, list_comment=list_comment,
-                                list_share=list_share, list_fav=list_fav)
-            songlist.save()
+            WangyiMusic.updata_one_list(result)
+
+    # 静态方法与类方法均可通过类名调用，如WangyiMusic.updata_one_list(result)
+    # 详见http://zhidao.baidu.com/question/1946890673281794588.html
+    @staticmethod
+    def updata_one_list(result):
+        soup = BeautifulSoup(result.text, 'html.parser')
+        list_img = soup.find('img', class_='j-img')['src']
+        list_play = int(soup.find(id='play-count').string)
+        list_fav = soup.find('a', class_='u-btni u-btni-fav ')['data-count']
+        list_created_date_string = soup.find('span', class_='time s-fc4').string
+        list_created_date = re.findall(r'([0-9]{4}-[0-9]{1,2}-[0-9]{1,2})', list_created_date_string)
+        n_share_tag = soup.find('a', class_='u-btni u-btni-share ')
+        list_share = n_share_tag['data-count']
+        list_author = n_share_tag['data-res-author']
+        list_id = int(n_share_tag['data-res-id'])
+        list_link = 'http://music.163.com/playlist?id=' + str(list_id)
+        list_name = n_share_tag['data-res-name']
+        print(list_name)
+        list_comment_string = str(soup.find('span', id='cnt_comment_count').string)
+        if list_comment_string == '评论':
+            list_comment_string = '0'
+        list_comment = int(list_comment_string)
+        songlist = SongList(list_name=list_name, list_created_date=list_created_date[0], list_play=list_play,
+                            list_author=list_author,
+                            list_link=list_link, list_img=list_img, list_id=list_id, list_comment=list_comment,
+                            list_share=list_share, list_fav=list_fav)
+        songlist.save()
 
 
 if __name__ == '__main__':
