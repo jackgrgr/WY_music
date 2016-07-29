@@ -93,23 +93,26 @@
                     <li><a href="#">Link</a></li>
                     <li><a href="#">Link</a></li>
                     <li><a href="#">Link</a></li>
-                    <li><a href="#">Link</a></li>
-                    <li><a href="#">Link</a></li>
-                    <li><a href="#">Link</a></li>
-                    <li class="nav-header">Sidebar</li>
-                    <li><a href="#">Link</a></li>
-                    <li><a href="#">Link</a></li>
-                    <li><a href="#">Link</a></li>
                 </ul>
                 <div class="sidebar-nav">
                     <img src="/static/images/alice.png">
                 </div>
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <input id="queryword" placeholder="请输入要查询关键词" type="text">
+                </form>
+                <p>
+                    <button id='wordcloud_button' class="btn btn-primary btn-large">包含关键字的歌单 »</button>
+                </p>
+                <ul id="lists_contain_queryword">
+
+                </ul>
             </div><!--/.well -->
         </div><!--/span-->
         <div class="span9">
             <div class="hero-unit">
                 <h1>使用说明书</h1>
-                <p>可以对歌单按照播放次数，收藏次数，分享次数，评论次数进行排序，也可由用户输入权值来对歌单进行排序</p>
+                <p>可以对歌单按照播放次数，收藏次数，分享次数，评论次数进行排序，也可查詢包含关键字的歌单，以及绘制歌单蛛网图</p>
 
                 <form method="post" action="">
                     {% csrf_token %}
@@ -327,6 +330,7 @@
 <script src="https://code.highcharts.com/highcharts-more.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
 <script src="/static/index_files/spiderweb.js"></script>
+<script src="/static/index_files/wordcloud.js"></script>
 <script src="/static/index_files/bootstrap-transition.js"></script>
 <script src="/static/index_files/bootstrap-alert.js"></script>
 <script src="/static/index_files/bootstrap-modal.js"></script>
