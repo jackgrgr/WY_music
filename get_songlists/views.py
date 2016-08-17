@@ -1,13 +1,17 @@
 from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
 from .models import SongList
+from django.db.models import F, FloatField
 import requests
 from .update import WangyiMusic
 from django.core.exceptions import ObjectDoesNotExist
+# use 'pip install wordcloud' to install wordcloud
 from wordcloud import WordCloud, ImageColorGenerator
 import numpy as np
 from PIL import Image
 from os import path
+# use 'pip install jieba' to install jieba
+# https://github.com/fxsjy/jieba
 import jieba.analyse
 from django.db.models import Avg, Max, Min, StdDev
 import json
@@ -50,6 +54,7 @@ def order_by_list_fav(request):
     return render(request, 'get_songlists/favorite.html', context={'lists_to_show': lists_to_show})
 
 
+# share.html inherits from index.html
 def order_by_list_share(request):
     lists_to_show = SongList.objects.order_by('-list_share')[0:6]
     return render(request, 'get_songlists/share.html', context={'lists_to_show': lists_to_show})
@@ -58,6 +63,16 @@ def order_by_list_share(request):
 def order_by_list_comment(request):
     lists_to_show = SongList.objects.order_by('-list_comment')[0:6]
     return render(request, 'get_songlists/comment.html', context={'lists_to_show': lists_to_show})
+
+
+def order_by_list_diy(request):
+    # test the F function in django
+    songlists_filtered = SongList.objects.exclude(list_fav=0)
+    songlists_filtered = songlists_filtered.exclude(list_share=0)
+    lists_to_show = songlists_filtered.annotate(
+        my_index=(F('list_play') / F('list_fav') + F('list_play') / F('list_share'))) \
+        .order_by('my_index')
+    return render(request, 'get_songlists/diy.html', context={'lists_to_show': lists_to_show[0:6]})
 
 
 def spider_web(request):
@@ -90,6 +105,7 @@ def spider_web(request):
     index_dict['share_index'] = (num_lists - share_rank) / num_lists
     index_dict['comment_index'] = (num_lists - comment_rank) / num_lists
     print(index_dict)
+
     return JsonResponse(index_dict)
 
 
@@ -105,19 +121,17 @@ def wd_cloud(request):
     text = ','.join([tag[0] for tag in tags])
     queryword = request.GET.get('queryword')
     # 使用objects.filter方法所得到的是一个QuerySet，而使用objects.get方法得到的是一个对象
-    # 因此此处使用的是filter方法
+    # 因此此处使用的是filter方法,此外，如果需要选择不满足条件的集合，就使用exclude方法
     res = SongList.objects.filter(list_name__contains=queryword)
-    print(res.aggregate(Avg('list_play')))
-    print(res.aggregate(Max('list_play')))
-    print(res.aggregate(Min('list_play')))
-    print(res.aggregate(StdDev('list_play')))
 
     # 判断是否有歌曲重复出现在某几个歌单中
     links = ['http://music.163.com/api/playlist/detail?id=' + str(r.list_id) for r in res]
-    print(links)
     id_lists = list()
     name_dict = dict()
     json_texts = [json.loads(requests.get(link).text) for link in links]
+    # songs_appear_manytimes is a list of tuples with each tuple containing
+    #  a song list's id, time it appears and its name
+    songs_appear_manytimes = list()
     for i in range(len(json_texts)):
         t = json_texts[i]['result']['tracks']
         for j in range(len(t)):
@@ -128,18 +142,23 @@ def wd_cloud(request):
     d = collections.Counter(id_lists)
     for k in d:
         if d[k] > 1:
+            songs_appear_manytimes.append((name_dict[k], d[k], k))
             print(k)
             print(d[k])
             print(name_dict[k])
 
     json_response = dict()
-    json_response['lists_contain_queryword'] = [r.list_name for r in res]
+    json_response['lists_contain_queryword'] = [(r.list_name, r.list_link) for r in res]
+    json_response['songs_appaer_manytimes'] = songs_appear_manytimes
+    pprint(json_response)
     region = (32, 107, 992, 661)
     mask = np.array(Image.open(path.join(base_path, "static/images/nike-logo.jpg")).crop(region).rotate(90))
     mulan_style = np.array(Image.open(path.join(base_path, "static/images/a.png")).rotate(90))
     color_style = ImageColorGenerator(mulan_style)
     wordcloud = WordCloud(font_path=font_path, mask=mask, background_color='white', max_words=400, width=400,
-                          height=800, max_font_size=40, min_font_size=20, relative_scaling=.9, scale=2.0).generate(text)
+                          height=800, max_font_size=50, min_font_size=20, relative_scaling=.9, scale=2.0).generate(text)
     wordcloud.recolor(color_func=color_style)
-    wordcloud.to_file(path.join(base_path, "static/images/alice.png"))
+    cloud_img_path = path.join(base_path, "static/images/cloud.png")
+    wordcloud.to_file(cloud_img_path)
+
     return JsonResponse(json_response)

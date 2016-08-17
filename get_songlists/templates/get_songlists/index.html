@@ -88,15 +88,13 @@
                         <li><a href={% url 'songlist_order_by_fav' %}>按照收藏数进行排序</a></li>
                         <li><a href={% url 'songlist_order_by_share' %}>按照分享数进行排序</a></li>
                         <li><a href={% url 'songlist_order_by_comment' %}>按照评论数进行排序</a></li>
+                        <li><a href={% url 'songlist_order_by_diy' %}>按照自定义规则进行排序</a></li>
                     {% endblock %}
                     <li class="nav-header">Sidebar</li>
                     <li><a href="#">Link</a></li>
                     <li><a href="#">Link</a></li>
                     <li><a href="#">Link</a></li>
                 </ul>
-                <div class="sidebar-nav">
-                    <img src="/static/images/alice.png">
-                </div>
                 <form method="post" action="">
                     {% csrf_token %}
                     <input id="queryword" placeholder="请输入要查询关键词" type="text">
@@ -104,8 +102,11 @@
                 <p>
                     <button id='wordcloud_button' class="btn btn-primary btn-large">包含关键字的歌单 »</button>
                 </p>
-                <ul id="lists_contain_queryword">
-
+                <ul id="lists_contain_queryword" class="nav-list">
+                    <li class="nav-header">包含关键字的歌单</li>
+                </ul>
+                <ul id="songs_appear_manytimes" class="nav-list">
+                    <li class="nav-header">出现在多个歌单中的歌曲</li>
                 </ul>
             </div><!--/.well -->
         </div><!--/span-->
@@ -113,6 +114,9 @@
             <div class="hero-unit">
                 <h1>使用说明书</h1>
                 <p>可以对歌单按照播放次数，收藏次数，分享次数，评论次数进行排序，也可查詢包含关键字的歌单，以及绘制歌单蛛网图</p>
+                <div>
+                    <img src="/static/images/cloud.png">
+                </div>
 
                 <form method="post" action="">
                     {% csrf_token %}
@@ -129,7 +133,8 @@
                 <div class="span4">
                     <h3>No.1</h3>
                     <h2>{{ lists_to_show.0 }}</h2>
-                    <img src={{ lists_to_show.0.list_img }}>
+                    <a href='#'><img id='img0'
+                                     data-songlist_id={{ lists_to_show.0.list_id }} src={{ lists_to_show.0.list_img }}></a>
                     <p>{{ lists_to_show.0.list_author }} 创建于 {{ lists_to_show.0.list_created_date }}</p>
                     <p>播放了{{ lists_to_show.0.list_play }}次</p>
                     <p>收藏了{{ lists_to_show.0.list_fav }}次</p>
@@ -160,7 +165,8 @@
                 <div class="span4">
                     <h3>No.2</h3>
                     <h2>{{ lists_to_show.1 }}</h2>
-                    <img src={{ lists_to_show.1.list_img }}>
+                    <a href="#"><img id='img1'
+                                     data-songlist_id={{ lists_to_show.1.list_id }} src={{ lists_to_show.1.list_img }}></a>
                     <p>{{ lists_to_show.1.list_author }} 创建于 {{ lists_to_show.1.list_created_date }}</p>
                     <p>播放了{{ lists_to_show.1.list_play }}次</p>
                     <p>收藏了{{ lists_to_show.1.list_fav }}次</p>
@@ -190,7 +196,8 @@
                 <div class="span4">
                     <h3>No.3</h3>
                     <h2>{{ lists_to_show.2 }}</h2>
-                    <img src={{ lists_to_show.2.list_img }}>
+                    <a href="#"><img id='img2'
+                                     data-songlist_id={{ lists_to_show.2.list_id }} src={{ lists_to_show.2.list_img }}></a>
                     <p>{{ lists_to_show.2.list_author }} 创建于 {{ lists_to_show.2.list_created_date }}</p>
                     <p>播放了{{ lists_to_show.2.list_play }}次</p>
                     <p>收藏了{{ lists_to_show.2.list_fav }}次</p>
@@ -222,7 +229,8 @@
                 <div class="span4">
                     <h3>No.4</h3>
                     <h2>{{ lists_to_show.3 }}</h2>
-                    <img src={{ lists_to_show.3.list_img }}>
+                    <a href="#"><img id='img3'
+                                     data-songlist_id={{ lists_to_show.3.list_id }} src={{ lists_to_show.3.list_img }}></a>
                     <p>{{ lists_to_show.3.list_author }} 创建于 {{ lists_to_show.1.list_created_date }}</p>
                     <p>播放了{{ lists_to_show.3.list_play }}次</p>
                     <p>收藏了{{ lists_to_show.3.list_fav }}次</p>
@@ -252,7 +260,8 @@
                 <div class="span4">
                     <h3>No.5</h3>
                     <h2>{{ lists_to_show.4 }}</h2>
-                    <img src={{ lists_to_show.4.list_img }}>
+                    <a href="#"><img id='img4'
+                                     data-songlist_id={{ lists_to_show.4.list_id }} src={{ lists_to_show.4.list_img }}></a>
                     <p>{{ lists_to_show.4.list_author }} 创建于 {{ lists_to_show.1.list_created_date }}</p>
                     <p>播放了{{ lists_to_show.4.list_play }}次</p>
                     <p>收藏了{{ lists_to_show.4.list_fav }}次</p>
@@ -282,7 +291,8 @@
                 <div class="span4">
                     <h3>No.6</h3>
                     <h2>{{ lists_to_show.5 }}</h2>
-                    <img src={{ lists_to_show.5.list_img }}>
+                    <a href="#"><img id='img5'
+                                     data-songlist_id={{ lists_to_show.5.list_id }} src={{ lists_to_show.5.list_img }}></a>
                     <p>{{ lists_to_show.5.list_author }} 创建于 {{ lists_to_show.1.list_created_date }}</p>
                     <p>播放了{{ lists_to_show.5.list_play }}次</p>
                     <p>收藏了{{ lists_to_show.5.list_fav }}次</p>
